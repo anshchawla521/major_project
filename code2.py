@@ -3,15 +3,15 @@ import numpy as np
 import cv2
 # import fingerprint_enhancer
 
-path_to_dataset = "SOCOFing/updated"
-path_to_finger_image = "./SOCOFing/cam/cap_orginal_finger1_image4_grayscale.jpg"
+path_to_dataset = "./images"
+path_to_finger_image = "image.jpg"
 
 
 sample = cv2.imread(path_to_finger_image)
 
-# cv2.imshow("Wihout filter",sample)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
+cv2.imshow("Wihout filter",sample)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
 
 # sample = cv2.imread( "./SOCOFing/Altered\Altered-Easy/1__M_Left_index_finger_Zcut.BMP")
@@ -66,7 +66,7 @@ for file in os.listdir(path_to_dataset):
         image = fingerprint_img
         kp1, kp2, mp = keypoints_1, keypoints_2, match_points
 
-    if best_score > 60:  # I have taken 60 % matching to be sufficient to identify if iamge is present or not in db
+    if best_score > 60:  
         break
 
 
