@@ -9,11 +9,23 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from major_code import *
+#from major_code import *
+import RPi.GPIO as GPIO
+from mfrc522 import SimpleMFRC522
+from rpi_lcd import LCD
+from openpyxl import load_workbook
 
-
+path_to_database = "dataset.xlsx"   # enter path in raw form
+mapping = {"time": "A",
+           "uid": "B",
+           "name": "C",
+           "sid": "D",
+           "phone": "E",
+           "direction": "F",
+           "remarks": "G"}
 
 class Ui_MainWindow(object):
+
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(803, 564)
@@ -295,25 +307,96 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab2), _translate("MainWindow", "Find Person"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab3), _translate("MainWindow", "Add/update fingerprints"))
 
+    def check(self,uniqueid):
+        i = 2
+        flag = True
+        while flag:
+            # print(i)
+            x = self.sheet_dataset.cell(row=i, column=1)
+            # print(x, x.value, type(x.value))
+            if x.value == None:
+                break
+            elif int(x.value) == uniqueid:
+                return i
+            i += 1
+
+        return i
+    def read(self,uniqueid):
+        present = self.check(uniqueid)
+        if self.sheet_dataset.cell(row=present, column=1).value == None:
+            print("no")
+            return None
+        else:
+            send = dict()
+            col = 1
+            while col <= self.sheet_dataset.max_column:
+                cell = self.sheet_dataset.cell(row=1, column=col)
+                temp = self.sheet_dataset.cell(row=present, column=col)
+                if cell.value == "Student Name":
+                    send.update({"name": temp.value})
+                elif str(cell.value) == "Student ID":
+                    send.update({"sid": temp.value})
+                elif str(cell.value) == "Unique ID":
+                    send.update({"uid": int(temp.value)})
+                elif cell.value == "Student Phone Number":
+                    send.update({"phone": temp.value})
+                elif cell.value == "Location":
+                    send.update({"location": temp.value})
+                col += 1
+                if len(send) == 5:
+                    break
+            return send
+    def add_person(self):
+        
+        self.uid_of_student.setText(str(id))
+        pass
+    def find_person_func(self):
+        self.status_find_person.setText("Scan the RFID ")
+        self.read_rfid()
+        self.status_find_person.setText("Finding Info")
+        self.lcd.clear()
+        person = self.read(int(self.uid))
+        if person != None:
+            self.status_find_person.setText("Person found")
+            self.uid_of_student_2.setText(str(self.uid))
+            self.name_of_student_2.setText(person['name'])
+            self.sid_of_student_2.setText(person['sid'])
+            self.phone_number_student_2.setText(person['phone'])
+        else: 
+            self.status_find_person.setText("Person Not found")
+        
+
+
+    def get_id(self):
+        self.read_rfid()
+        self.uid_of_student.setText(str(self.uid))
+
     def read_rfid(self)-> int:
-        lcd.text("Please Scan Your RFID card", 1)
-        id, text = reader.read()
+        self.lcd.text("Please Scan Your RFID card", 1)
+        id, text = self.reader.read()
         print(id)
         print("Name Stored in RFID - "+text)
-        return int(id)
-    @staticmethod
-    def initialize_hardware():
-        lcd = LCD(width=16, rows=2, backlight=True)
-        reader = SimpleMFRC522()
+        self.uid = int(id)
+    
+        
 
-        dataset = load_workbook(path_to_database)
-        sheet_dataset = dataset.active
-    @staticmethod
-    def finalize_hardware():
+    def initialize_software(self):
+        self.initialize_hardware()
+        self.getrfid.clicked.connect(self.get_id)
+        self.find_person.clicked.connect(self.find_person_func)
+        self.addpersontodatabase.clicked.connect(self.add_person)
+
+    def initialize_hardware(self):
+        self.lcd  = LCD(width=16, rows=2, backlight=True)
+        self.reader = SimpleMFRC522()
+        print("initialized_hardware")
+        self.dataset = load_workbook(path_to_database)
+        self.sheet_dataset = self.dataset.active
+    def finalize_hardware(self):
         GPIO.cleanup()
-        dataset.save(path_to_database)
-        lcd.clear()
-        lcd.text("Bye Bye", 1)
+        self.dataset.save(path_to_database)
+        self.lcd.clear()
+        self.lcd.text("Bye Bye", 1)
 
 
 if __name__ == "__main__":
@@ -323,4 +406,6 @@ if __name__ == "__main__":
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
+    ui.initialize_software()
     sys.exit(app.exec_())
+    ui.finalize_hardware()
