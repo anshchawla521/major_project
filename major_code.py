@@ -82,7 +82,7 @@ def read(uniqueid):
             elif str(cell.value) == "Student ID":
                 send.update({"sid":temp.value})
             elif str(cell.value) == "Unique ID":
-                send.update({"uid":temp.value})
+                send.update({"uid":int(temp.value)})
             elif cell.value == "Student Phone Number":
                 send.update({"phone":temp.value})
             elif cell.value == "Location":
@@ -93,7 +93,7 @@ def read(uniqueid):
         return send
 
 def write(data):
-    present = check(data["uid"])
+    present = check(int(data["uid"]))
     # if sheet.cell(row = present, column = 1).value == data["uid"]:
     #     print("present")
     #     return False
@@ -108,7 +108,7 @@ def write(data):
         elif str(cell.value) == "Student ID":
             temp.value = data["sid"]
         elif str(cell.value) == "Unique ID":
-            temp.value = data["uid"]
+            temp.value = int(data["uid"])
         elif cell.value == "Student Phone Number":
             temp.value = data["phone"]
         elif cell.value == "Location":
