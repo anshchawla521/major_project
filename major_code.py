@@ -29,6 +29,13 @@ reader = SimpleMFRC522()
 GOINGOUT = True
 GOINGIN = False
 
+path_to_database = "dataset.xlsx"   # enter path in raw form
+
+dataset = load_workbook(path_to_database)
+
+sheet = dataset.active
+
+
 workbook = load_workbook(filename="attendance.xlsx")
 sheet = workbook["Sheet1"]
 
@@ -45,15 +52,70 @@ GPIO.setup(touch, GPIO.IN)
 
 camera = picamera.PiCamera()
 
-def getinfo(uid)-> dict:
-    return{"name" :"ansh",
-            "sid" :"19105031",
-            "uid" :"0",
-            "phone":"7696046760",
-            "location":"out" }
+def check(uniqueid):
+    i = 2
+    flag = True
+    while flag:
+        print(i)
+        x = sheet.cell(row = i, column= 1)
+        # print(x, x.value, type(x.value))
+        if x.value == None:
+            break
+        elif int(x.value) == uniqueid:
+            return i
+        i += 1
+        
+    return i
 
-def write_info(person)-> bool:
+def read(uniqueid):
+    present = check(uniqueid)
+    if sheet.cell(row = present, column = 1).value == None:
+        print("no")
+        return None
+    else:
+        send = dict()
+        col = 1
+        while col <= 11:
+            cell = sheet.cell(row = 1, column = col)
+            temp = sheet.cell(row = present, column= col)
+            if cell.value == "Student Name":
+                send.update({"name":temp.value})
+            elif str(cell.value) == "Student ID":
+                send.update({"sid":temp.value})
+            elif str(cell.value) == "Unique ID":
+                send.update({"uid":temp.value})
+            elif cell.value == "Student Phone Number":
+                send.update({"phone":temp.value})
+            col += 1
+            if len(send) == 4:
+                break
+        return send
+
+def write(data):
+    present = check(data["uid"])
+    # if sheet.cell(row = present, column = 1).value == data["uid"]:
+    #     print("present")
+    #     return False
+    # else:
+    col = 1
+    while col <= 11:
+        print(present)
+        cell = sheet.cell(row = 1, column = col)
+        temp = sheet.cell(row = present, column= col)
+        if cell.value == "Student Name":
+            temp.value = data["name"]
+        elif str(cell.value) == "Student ID":
+            temp.value = data["sid"]
+        elif str(cell.value) == "Unique ID":
+            temp.value = data["uid"]
+        elif cell.value == "Student Phone Number":
+            temp.value = data["phone"]
+        elif cell.value == "Location":
+            temp.value = data["location"]
+        col += 1
     return True
+
+
 
 def match_finger(image)->bool:
     sample = cv2.imread(path_to_finger_image)
@@ -142,7 +204,9 @@ try:
     print(text)
     row = sheet.max_row+1
 
-    person = getinfo(id)
+    person = read(id)
+
+    
     
     if(person == None):
         raise IndexError("person not found invalid uid")
@@ -159,12 +223,12 @@ try:
         if direction == GOINGOUT:
             sheet[f'{mapping["direction"]}{row}'] = "EXIT" # print name
             person["location"] = "out"
-            write_info(person)
+            write(person)
             time.sleep(2)
         elif direction == GOINGIN:
             sheet[f'{mapping["direction"]}{row}'] = "ENTRY" 
             person["location"] = "in"
-            write_info(person)
+            write(person)
             
     matched = False
     chance = 5
@@ -199,3 +263,4 @@ try:
 finally:
     GPIO.cleanup()
     workbook.save(filename="attendance.xlsx")
+    dataset.save(path_to_database)

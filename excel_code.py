@@ -1,7 +1,7 @@
 import openpyxl
-path = "C:/Users/ASUS/Desktop/dataset.xlsx"   # enter path in raw form
+path_to_database = "dataset.xlsx"   # enter path in raw form
 
-dataset = openpyxl.load_workbook(path)
+dataset = openpyxl.load_workbook(path_to_database)
 
 sheet = dataset.active
 
@@ -24,7 +24,7 @@ def read(uniqueid):
     present = check(uniqueid)
     if sheet.cell(row = present, column = 1).value == None:
         print("no")
-        return False
+        return None
     else:
         send = dict()
         col = 1

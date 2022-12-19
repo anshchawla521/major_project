@@ -19,9 +19,6 @@ try:
 
         if key == ord('s'):
             break
-        if key == ord('i'):
-            i = 0
-            j = j+1
         if key == ord('c'):
             #cv2.imwrite(f"images/cap_orginal_finger{j}_image{i}.jpg",img)
             img_gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
