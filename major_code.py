@@ -252,12 +252,12 @@ try:
                     if count == 0:
                         break
                 chance = chance-1
-                print("given chance")
+                print("Scanner Finger Now Comparing")
                 image_path = "image.jpg"  #address and name of image
                 #camera.capture(image_path) 
                 #image = cv2.imread(image_path)
                 
-                cv2.imwrite(image_path,img)
+                #cv2.imwrite(image_path,img)
                 # call image_check
 
                 GPIO.output(led,GPIO.LOW)
