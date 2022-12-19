@@ -1,6 +1,10 @@
 import RPi.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
 import datetime
+from rpi_lcd import LCD
+
+lcd = LCD(width=16 , rows=2 , backlight=True)
+
 
 from openpyxl import load_workbook
 import time 
@@ -193,33 +197,46 @@ def match_finger(image)->bool:
         return True
 
 
-
+def open_gates():
+    # open the gate
+    lcd.clear()
+    lcd.text("The Gates are now open",1)
+    time.sleep(1)
+    pass   
 
 
 
 
 try:
     #Reader.write("Ansh Chawla")
+    lcd.text("Please Scan Your RFID card",1)
     id , text = reader.read()
     print(id)
     print("Name Stored in RFID - "+text)
-    row = sheet.max_row+1
 
+    row = sheet.max_row+1
     person = read(id)
 
     
-    
+    lcd.clear()
     if(person == None):
+        lcd.text("RFID not in database",1)
         raise IndexError("person not found invalid uid")
+
     else:
         #print(sheet[f'A{row}:F{row}'][0][1].value)
         if (direction == GOINGOUT and person["location"] == "out") or (direction == GOINGIN and person["location"] == "in"):
             sheet[f'{mapping["remarks"]}{row}']= "Card RESCAN"
+            lcd.text("Card Rescan",1)
+            time.sleep(1)
         sheet[f'{mapping["time"]}{row}']= datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         sheet[f'{mapping["name"]}{row}']= person["name"]
         sheet[f'{mapping["sid"]}{row}']= person["sid"]
         sheet[f'{mapping["phone"]}{row}']= person["phone"]
         sheet[f'{mapping["uid"]}{row}']= id
+        lcd.clear()
+        lcd.text(f'Welcome {person["name"]}',1)
+        time.sleep(1)
 
         if direction == GOINGOUT:
             sheet[f'{mapping["direction"]}{row}'] = "EXIT" # print name
@@ -236,6 +253,8 @@ try:
     if(direction == GOINGIN):
         
         cap = cv2.VideoCapture(0)
+        lcd.clear()
+        lcd.text("Put your finger on the scanner",1)
         while not matched and chance != 0:
             GPIO.output(led,GPIO.HIGH)
             success , img = cap.read()
@@ -252,7 +271,9 @@ try:
                     if count == 0:
                         break
                 chance = chance-1
-                print("Scanner Finger Now Comparing")
+                print("Scanned finger Now Comparing")
+                lcd.clear()
+                lcd.text("Scanned img ",1)
                 image_path = "image.jpg"  #address and name of image
                 #camera.capture(image_path) 
                 #image = cv2.imread(image_path)
@@ -267,14 +288,19 @@ try:
                 #     break
         if not matched:
             print("sry no match") 
+            lcd.clear()
+            lcd.text("Rescan finger",1)
             sheet[f'{mapping["remarks"]}{row}']= "FINGERPRINT MISMATCH"
+        else:
+            open_gates()
                 
     else:
-        # open the gate
-        pass
+        open_gates()
 
 
 finally:
     GPIO.cleanup()
     workbook.save(filename="attendance.xlsx")
     dataset.save(path_to_database)
+    lcd.clear()
+    lcd.text("Bye Bye",1)
