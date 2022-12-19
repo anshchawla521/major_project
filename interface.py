@@ -9,6 +9,8 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from major_code import *
+
 
 
 class Ui_MainWindow(object):
@@ -292,6 +294,26 @@ class Ui_MainWindow(object):
         self.find_person.setText(_translate("MainWindow", "FIND"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab2), _translate("MainWindow", "Find Person"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab3), _translate("MainWindow", "Add/update fingerprints"))
+
+    def read_rfid(self)-> int:
+        lcd.text("Please Scan Your RFID card", 1)
+        id, text = reader.read()
+        print(id)
+        print("Name Stored in RFID - "+text)
+        return int(id)
+    @staticmethod
+    def initialize_hardware():
+        lcd = LCD(width=16, rows=2, backlight=True)
+        reader = SimpleMFRC522()
+
+        dataset = load_workbook(path_to_database)
+        sheet_dataset = dataset.active
+    @staticmethod
+    def finalize_hardware():
+        GPIO.cleanup()
+        dataset.save(path_to_database)
+        lcd.clear()
+        lcd.text("Bye Bye", 1)
 
 
 if __name__ == "__main__":
