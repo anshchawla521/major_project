@@ -55,7 +55,7 @@ def check(uniqueid):
     i = 2
     flag = True
     while flag:
-        print(i)
+        #print(i)
         x = sheet_dataset.cell(row = i, column= 1)
         # print(x, x.value, type(x.value))
         if x.value == None:
@@ -74,7 +74,7 @@ def read(uniqueid):
     else:
         send = dict()
         col = 1
-        while col <= 11:
+        while col <= sheet_dataset.max_column:
             cell = sheet_dataset.cell(row = 1, column = col)
             temp = sheet_dataset.cell(row = present, column= col)
             if cell.value == "Student Name":
@@ -85,8 +85,10 @@ def read(uniqueid):
                 send.update({"uid":temp.value})
             elif cell.value == "Student Phone Number":
                 send.update({"phone":temp.value})
+            elif cell.value == "Location":
+                send.update({"location":temp.value})
             col += 1
-            if len(send) == 4:
+            if len(send) == 5:
                 break
         return send
 
@@ -97,8 +99,8 @@ def write(data):
     #     return False
     # else:
     col = 1
-    while col <= 11:
-        print(present)
+    while col <= sheet_dataset.max_column:
+        #print(present)
         cell = sheet_dataset.cell(row = 1, column = col)
         temp = sheet_dataset.cell(row = present, column= col)
         if cell.value == "Student Name":
@@ -200,7 +202,7 @@ try:
     #Reader.write("Ansh Chawla")
     id , text = reader.read()
     print(id)
-    print(text)
+    print("Name Stored in RFID - "+text)
     row = sheet.max_row+1
 
     person = read(id)

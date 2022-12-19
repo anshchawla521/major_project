@@ -28,7 +28,7 @@ def read(uniqueid):
     else:
         send = dict()
         col = 1
-        while col <= 11:
+        while col <= sheet.max_column:
             cell = sheet.cell(row = 1, column = col)
             temp = sheet.cell(row = present, column= col)
             if cell.value == "Student Name":
@@ -39,8 +39,11 @@ def read(uniqueid):
                 send.update({"uid":temp.value})
             elif cell.value == "Student Phone Number":
                 send.update({"phone":temp.value})
+            elif cell.value == "Location":
+                send.update({"location":temp.value})
+            print(cell.value)
             col += 1
-            if len(send) == 4:
+            if len(send) == 5:
                 break
         return send
 
@@ -51,7 +54,7 @@ def write(data):
     #     return False
     # else:
     col = 1
-    while col <= 11:
+    while col <= sheet.max_column:
         print(present)
         cell = sheet.cell(row = 1, column = col)
         temp = sheet.cell(row = present, column= col)
@@ -65,12 +68,14 @@ def write(data):
             temp.value = data["phone"]
         elif cell.value == "Location":
             temp.value = data["location"]
+        #print(cell.value)
         col += 1
     return True
 
 
-print(read(8038593633906583))
-write({"name" : "Saksham", "sid" : "19107069", "uid" : "1548976320168423","phone":"7894561238", "location" : "in"})
-print(read(1548976320168423))
 
-dataset.save("dataset1.xlsx")
+write({"name" : "Shubham", "sid" : "19105006", "uid" : "902634020041","phone":"8059241611", "location" : "in"})
+
+print(read(902634020041))
+
+dataset.save("dataset.xlsx")
