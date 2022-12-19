@@ -43,7 +43,7 @@ GPIO.output(led,GPIO.LOW)
 
 GPIO.setup(touch, GPIO.IN)
 
-camera = picamera.PiCamera()
+#camera = picamera.PiCamera()
 
 def getinfo(uid)-> dict:
     return{"name" :"ansh",
@@ -72,7 +72,7 @@ def match_finger(image)->bool:
     #                [-1, -1, -1]])
 
     sample = cv2.filter2D(src=sample, ddepth=-1, kernel=kernel)
-
+    cv2.imwrite("image_grayscale.jpg",sample)
 
     #cv2.imshow("original",sample)
     # cv2.imshow("Original", cv2.resize(sample, None, fx=1, fy=1))
@@ -169,21 +169,34 @@ try:
     matched = False
     chance = 5
     if(direction == GOINGIN):
+        
+        cap = cv2.VideoCapture(0)
         while not matched and chance != 0:
             GPIO.output(led,GPIO.HIGH)
+            success , img = cap.read()
+            if not success :
+                break
             if not GPIO.input(touch):
-                time.sleep(1)
+                
+                #cv2.imshow("video",img)
+                #cv2.waitKey(0)
+                count = 40
+                while True:
+                    success , img = cap.read()
+                    count = count -1
+                    if count == 0:
+                        break
                 chance = chance-1
                 print("given chance")
                 image_path = "image.jpg"  #address and name of image
-                camera.capture(image_path) 
-                image = cv2.imread(image_path)
-                img = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-                cv2.imwrite("image_grayscale.jpg",img)
+                #camera.capture(image_path) 
+                #image = cv2.imread(image_path)
+                
+                cv2.imwrite(image_path,img)
                 # call image_check
 
                 GPIO.output(led,GPIO.LOW)
-                matched = match_finger(image)
+                matched = match_finger(img)
                 
                 # if cv2.waitKey(0) == ord('s'):
                 #     break
