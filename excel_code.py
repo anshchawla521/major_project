@@ -70,7 +70,7 @@ def write(data):
 
 
 print(read(8038593633906583))
-write({"name" : "Saksham", "sid" : "19107069", "uid" : "1548976320168423","phone":"7894561238", "location" : "IN"})
+write({"name" : "Saksham", "sid" : "19107069", "uid" : "1548976320168423","phone":"7894561238", "location" : "in"})
 print(read(1548976320168423))
 
 dataset.save("dataset1.xlsx")

@@ -32,8 +32,7 @@ GOINGIN = False
 path_to_database = "dataset.xlsx"   # enter path in raw form
 
 dataset = load_workbook(path_to_database)
-
-sheet = dataset.active
+sheet_dataset = dataset.active
 
 
 workbook = load_workbook(filename="attendance.xlsx")
@@ -57,7 +56,7 @@ def check(uniqueid):
     flag = True
     while flag:
         print(i)
-        x = sheet.cell(row = i, column= 1)
+        x = sheet_dataset.cell(row = i, column= 1)
         # print(x, x.value, type(x.value))
         if x.value == None:
             break
@@ -69,15 +68,15 @@ def check(uniqueid):
 
 def read(uniqueid):
     present = check(uniqueid)
-    if sheet.cell(row = present, column = 1).value == None:
+    if sheet_dataset.cell(row = present, column = 1).value == None:
         print("no")
         return None
     else:
         send = dict()
         col = 1
         while col <= 11:
-            cell = sheet.cell(row = 1, column = col)
-            temp = sheet.cell(row = present, column= col)
+            cell = sheet_dataset.cell(row = 1, column = col)
+            temp = sheet_dataset.cell(row = present, column= col)
             if cell.value == "Student Name":
                 send.update({"name":temp.value})
             elif str(cell.value) == "Student ID":
@@ -100,8 +99,8 @@ def write(data):
     col = 1
     while col <= 11:
         print(present)
-        cell = sheet.cell(row = 1, column = col)
-        temp = sheet.cell(row = present, column= col)
+        cell = sheet_dataset.cell(row = 1, column = col)
+        temp = sheet_dataset.cell(row = present, column= col)
         if cell.value == "Student Name":
             temp.value = data["name"]
         elif str(cell.value) == "Student ID":
