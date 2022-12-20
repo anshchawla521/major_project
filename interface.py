@@ -327,11 +327,21 @@ class Ui_MainWindow(object):
             print("no")
             return None
         else:
-            send = dict()
+            send = {"name":"",
+                    "sid":"",
+                    "uid":"",
+                    "phone":"",
+                    "location":"",
+                    "parent_name":"",
+                    "branch":"",
+                    "parent_phone_no":""}
+
             col = 1
             while col <= self.sheet_dataset.max_column:
+                
                 cell = self.sheet_dataset.cell(row=1, column=col)
                 temp = self.sheet_dataset.cell(row=present, column=col)
+                #print(cell.value.lower())
                 if cell.value == "Student Name":
                     send.update({"name": temp.value})
                 elif str(cell.value) == "Student ID":
@@ -342,10 +352,47 @@ class Ui_MainWindow(object):
                     send.update({"phone": temp.value})
                 elif cell.value == "Location":
                     send.update({"location": temp.value})
+                elif cell.value.lower().strip() == "parent name":
+                    send.update({"parent_name": temp.value})
+                elif cell.value == "Department":
+                    send.update({"branch": temp.value})
+                elif cell.value == "Parent Phone Number":
+                    send.update({"parent_phone_no": temp.value})
                 col += 1
-                if len(send) == 5:
+                if len(send) == 10:
                     break
             return send
+
+    def write(self,data):
+        present = self.check(int(data["uid"]))
+        # if sheet.cell(row = present, column = 1).value == data["uid"]:
+        #     print("present")
+        #     return False
+        # else:
+        col = 1
+        while col <= self.sheet_dataset.max_column:
+            # print(present)
+            cell = self.sheet_dataset.cell(row=1, column=col)
+            temp = self.sheet_dataset.cell(row=present, column=col)
+            if cell.value == "Student Name":
+                temp.value = data["name"]
+            elif str(cell.value) == "Student ID":
+                temp.value = data["sid"]
+            elif str(cell.value) == "Unique ID":
+                temp.value = int(data["uid"])
+            elif cell.value == "Student Phone Number":
+                temp.value = data["phone"]
+            elif cell.value == "Location":
+                temp.value = data["location"]
+            elif cell.value == "Parent Name":
+                temp.value = data["parent_name"]
+            elif cell.value == "Department":
+                temp.value = data["branch"]
+            elif cell.value == "Parent Phone Number":
+                temp.value = data["parent_phone_no"]
+            col += 1
+        return True
+
     def add_person(self):
         
         self.uid_of_student.setText(str(id))
@@ -356,12 +403,16 @@ class Ui_MainWindow(object):
         self.status_find_person.setText("Finding Info")
         self.lcd.clear()
         person = self.read(int(self.uid))
+        #print(person)
         if person != None:
             self.status_find_person.setText("Person found")
             self.uid_of_student_2.setText(str(self.uid))
             self.name_of_student_2.setText(person['name'])
-            self.sid_of_student_2.setText(person['sid'])
-            self.phone_number_student_2.setText(person['phone'])
+            self.sid_of_student_2.setText(str(person['sid']))
+            self.phone_number_student_2.setText(str(person['phone']))
+            self.phone_parent_2.setText(str(person['parent_phone_no']))
+            self.branch_of_student_2.setText(person['branch'])
+            self.name_parent_2.setText(str(person['parent_name']))
         else: 
             self.status_find_person.setText("Person Not found")
         
