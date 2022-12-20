@@ -106,8 +106,8 @@ def match_finger(image) -> bool:
 
     best_score = counter = 0
     filename = image = kp1 = kp2 = mp = None
-    for file in os.listdir(path_to_dataset):
-        fingerprint_img = cv2.imread(f'{path_to_dataset}/' + file)
+    for file in os.listdir(path_to_dataset_with_sid):
+        fingerprint_img = cv2.imread(f'{path_to_dataset_with_sid}/' + file)
     #   fingerprint_img=abs(140-fingerprint_img)
     #   fingerprint_img=fingerprint_img[90:310 , 170:480]
 
@@ -266,9 +266,9 @@ if __name__ == "__main__":
                     # camera.capture(image_path)
                     #image = cv2.imread(image_path)
 
-                    # cv2.imwrite(image_path,img)
+                    cv2.imwrite(image_path,img)
                     # call image_check
-
+                    path_to_dataset_with_sid = path_to_dataset + "/" +person["sid"] 
                     GPIO.output(led, GPIO.LOW)
                     matched = match_finger(img)
 
