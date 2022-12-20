@@ -323,6 +323,7 @@ class Ui_MainWindow(object):
         return i
     def read(self,uniqueid):
         present = self.check(uniqueid)
+        print(present)
         if self.sheet_dataset.cell(row=present, column=1).value == None:
             print("no")
             return None
@@ -365,6 +366,7 @@ class Ui_MainWindow(object):
 
     def write(self,data):
         present = self.check(int(data["uid"]))
+        print(data)
         # if sheet.cell(row = present, column = 1).value == data["uid"]:
         #     print("present")
         #     return False
@@ -394,9 +396,29 @@ class Ui_MainWindow(object):
         return True
 
     def add_person(self):
+        id = self.uid_of_student.toPlainText()
+        person = self.read(int(id))
+        if person == None:
+            person =  {"name":"",
+                        "sid":"",
+                        "uid":"",
+                        "phone":"",
+                        "location":"",
+                        "parent_name":"",
+                        "branch":"",
+                        "parent_phone_no":""}
         
-        self.uid_of_student.setText(str(id))
-        pass
+        person["uid"] = self.uid_of_student.toPlainText()
+        person["sid"] = self.sid_of_student.toPlainText()
+        person["name"] = self.name_of_student.toPlainText()
+        person["phone"] = self.phone_number_student.toPlainText()
+        person["location"] = "out"
+        person["parent_name"] = self.name_parent.toPlainText()
+        person["branch"] = self.branch_of_student.toPlainText()
+        person["parent_phone_no"] = self.phone_parent.toPlainText()
+
+        self.write(person)
+
     def find_person_func(self):
         self.status_find_person.setText("Scan the RFID ")
         self.read_rfid()
@@ -413,6 +435,14 @@ class Ui_MainWindow(object):
             self.phone_parent_2.setText(str(person['parent_phone_no']))
             self.branch_of_student_2.setText(person['branch'])
             self.name_parent_2.setText(str(person['parent_name']))
+
+            
+            self.name_of_student.setText(person['name'])
+            self.sid_of_student.setText(str(person['sid']))
+            self.phone_number_student.setText(str(person['phone']))
+            self.phone_parent.setText(str(person['parent_phone_no']))
+            self.branch_of_student.setText(person['branch'])
+            self.name_parent.setText(str(person['parent_name']))
         else: 
             self.status_find_person.setText("Person Not found")
         
@@ -458,5 +488,6 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     ui.initialize_software()
-    sys.exit(app.exec_())
+    app.exec_()
     ui.finalize_hardware()
+    sys.exit()
